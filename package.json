@@ -14,7 +14,8 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-router": "^0.0.1",
-    "nanoid": "^5.0.7",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "shortid": "^2.2.16",
+    "socket.io": "^4.7.5"
   }
 }
