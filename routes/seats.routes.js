@@ -24,7 +24,8 @@ router.route('/seats').post((req, res) => {
                 seat,
                 client,
                 email
-            })
+            });
+            res.io.emit("seatsUpdated", db.seats);
             res.json({message: "OK "});
         } else {
             res.status(404).json({ message: "You can not leave any fields empty!" });
