@@ -12,7 +12,7 @@ const SeatChooser = ({ chosenDay, chosenSeat, updateSeat }) => {
   const requests = useSelector(getRequests);
 
   useEffect(() => {
-      //dispatch(loadSeatsRequest())
+      dispatch(loadSeatsRequest())
       const socket = io((process.env.NODE_ENV === 'production') ? '/api' : 'http://localhost:8000', { transports: ['websocket'] });
       setSocket(socket);
       socket.on("seatsUpdated", (seats) => {

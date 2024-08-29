@@ -3,57 +3,81 @@ const express = require('express');
 const router = express.Router();
 const db = require('./../db');
 const shortid = require('shortid');
+const Concert = require('./../models/concerts.model')
 
-router.route('/concerts').get((req, res) => {
-    res.json(db.concerts);
+router.get('/concerts', async (req, res) => {
+    try {
+        res.json(await Concert.find());
+    }
+    catch(err) {
+        res.status(500).json({message: err});
+    }
 });
 
-router.route('/concerts/:id').get((req, res) => {
+router.get('/concerts/:id', async (req, res) => {
+    try {
+        const conc = await Concert.findById(req.params.id);
+        if(!conc) {
+            res.status(404).json({message: "Not found..."});
+        } else {
+            res.json(conc);
+        }
+    }
+    catch(err) {
+        res.status(500).json({message: err});
+    }
     res.json(db.concerts.find((item) => item.id == req.params.id));
 });
 
-router.route('/concerts').post((req, res) => {
+router.post('/concerts', async (req, res) => {
     const {performer, genre, price, day, image } = req.body;
-    if(performer, genre, price, day, image) {
-        db.concerts.push({
-            id: shortid(),
-            performer,
-            genre,
-            price,
-            day,
-            image
-        })
-        res.json({ message: "OK" })
-    } else {
-        res.status(404).json({message: "You can not leave any fields empty!"})
-    }
-    
-});
-
-router.route('/concerts/:id').put((req, res) => {
-    const element = db.concerts.find(element => element.id == req.params.id);
-    const {performer, genre, price, day, image} = req.body;
-    if(element){
-        if(performer, genre, price, day, image) {
-            element.performer = performer,
-            element.genre = genre,
-            element.price = price,
-            element.day = day,
-            element.image = image
-            res.json({message: "OK "})
+    try {
+        if(performer, genre, price, day, image){
+            const newConcert = new Concert({performer: performer, genre: genre, price: price, day: day, image: image });
+            await newConcert.save();
+            res.json({message: "OK"});
         } else {
-            res.status(404).json({ message: "You can not leave any fields empty!"});
-        }
-    } else {
-        res.status(404).json({ message: "OK"})
-    } 
+            res.status(404).json("You can not leave any fields empty!")
+        }   
+    }
+    catch(err) {
+        res.status(500).json({message: err});
+    }  
 });
 
-router.route('/concerts/:id').delete((req, res) => {
-    const element = db.concerts.find((element) => element.id == req.params.id);
+router.put('/concerts/:id', async (req, res) => {
+    const {performer, genre, price, day, image } = req.body; 
+    try {
+        if(performer, genre, price, day, image){
+            await Concert.updateOne({_id: req.params.id}, {$set: {performer: performer, genre: genre, price: price, day: day, image: image}});
+            res.json({message: "OK"});
+        } else {
+            res.status(404).json({message: "You can not leave any fields empty!"});
+        } 
+    }
+    catch(err) {
+
+    }
+});
+
+router.delete('/concerts/:id', async (req, res) => {
+    /*const element = db.concerts.find((element) => element.id == req.params.id);
     const indexOfConcert = db.concerts.indexOf(element);
     db.concerts.splice(indexOfConcert, 1);
-    res.json({ message: "OK "});
+    res.json({ message: "OK "});*/
+    try {
+        const conc = await Concert.findById(req.params.id);
+        if(!conc) {
+            res.status(404).json({message: "Not found..."});
+        } else {
+            await Concert.deleteOne({_id: req.params.id});
+            res.json({message: "OK"});
+        }
+    }
+    catch(err) {
+        res.status(500).json({message: err});
+    }
+    
 })
 
     module.exports = router;
