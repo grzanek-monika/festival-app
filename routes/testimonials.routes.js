@@ -1,67 +1,23 @@
 /* eslint-disable no-undef */
-
 const express = require('express');
 const router = express.Router();
-const db = require('./../db');
-const shortid = require('shortid');
-
+const TestimonialController = require('./../controllers/testimonials.controller');
 
 // get random testimonial
-router.route('/testimonials/random').get((req, res) => {
-    let item = db.testimonials[Math.floor(Math.random() * db.testimonials.length )];
-    res.json(item);
-});
+router.get('/testimonials/random', TestimonialController.getRandom);
 
 // get all testimonials
-router.route('/testimonials').get((req, res) => {
-    res.json(db.testimonials);
-});
+router.get('/testimonials', TestimonialController.getAll);
 
 // get single testimonial
-router.route('/testimonials/:id').get((req, res) => {
-    res.json(db.testimonials.find((item) => item.id == req.params.id));
-});
+router.get('/testimonials/:id', TestimonialController.getSingle);
 
 // add new testimonial
-router.route('/testimonials').post((req, res) => {
-    const { author, text } = req.body;
-  if(author && text) {
-    db.testimonials.push({
-      id: shortid(),
-      author,
-      text
-    });
-    return res.json({message: 'OK'});
-  } else {
-    res.status(404).json({ message: 'You can\'t leave any fields empty!' });
-  }    
-});
+router.post('/testimonials', TestimonialController.addNew);
 
 // edit testimonial
-router.route('/testimonials/:id').put((req, res) => {
-    const element = db.testimonials.find(element => element.id == req.params.id);
-    const { author, text } = req.body;
+router.put('/testimonials/:id', TestimonialController.updateItem);
 
-    if(element){
-        if(author && text){
-        element.author = author;
-        element.text = text;
-        res.json({ message: 'OK' });
-        } else {
-        res.status(404).json({ message: 'You can\'t leave any fields empty!' });
-        }
-    } else {
-        res.status(404).json({ message: 'You have to provide correct ID!' });
-    }             
-});
-
-router.route('/testimonials/:id').delete((req, res) => {
-    const getTestimonialById = db.testimonials.find((item) => item.id == req.params.id);
-    const indexOfTestimonial = db.testimonials.indexOf(getTestimonialById);
-    db.testimonials.splice(indexOfTestimonial, 1);
-    return res.json({message: 'OK'});
-})
-
-
+router.delete('/testimonials/:id', TestimonialController.deleteItem);
 
 module.exports = router;
